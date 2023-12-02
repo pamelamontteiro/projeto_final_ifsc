@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<!-- Head - É a primeira coisa a ser carregada na página -->
+<!-- Contém metadados e links de arquivos que queremos que sejam carregados rapidamente, como o CSS -->
+
+<head>
+    <title>Venha para Santa Catarina</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+</head>
+
+<!-- body - Contém a página em si -->
+<!-- A página tem dois elementos principais. Um cabeçalho e o conteúdo -->
+
+<body>
+    <!-- id=cabecalho - O cabeçalho é a tira na parte superior do site e é composta por três elementos: Um menu para o usuário navegar pelo site; O nome da empresa (ou logo); e os botões de cadastro e mídias sociais -->
+    <div id="cabecalho">
+
+        <!-- id=menu - É um menu drop-down que leva para outras páginas do site. Está em andamento. A Pamela fez o cabeçalho e eu simplesmente colei. -->
+        <div id="menu">
+            <button class="dropdown-btn"><img class="botao-grande" src="img/menu.png" alt="Menu" /></button>
+            <ul class="dropdown-content">
+                <li><a href="index.html" target="_blank">Página principal</a></li>
+                <li><a href="destino.html">Destinos</a></li>
+                <li><a href="quem_somos.html">Quem somos</a></li>
+                <li><a href="contato.html">Contato</a></li>
+            </ul>
+        </div>
+        <div id="logo">Venha para Santa Cantarina</div>
+        <div id="midias">
+            <div id="cadastro" class="botao-midias"><a href="cadastro.html"><img class="botao-pequeno"
+                        src="img/person.png" /></a></div>
+            <div id="instagram" class="botao-midias"><a href="http://www.instagram.com" target="_blank"><img
+                        class="botao-pequeno" src="img/instagram.png" /></a></div>
+            <div id="twitter" class="botao-midias"><a href="http://www.twitter.com" target="_blank"><img
+                        class="botao-pequeno" src="img/twitter.png" /></a></div>
+        </div>
+    </div>
+
+    <!-- id=conteudo - Contém o conteúdo da página. O plano de fundo é a ponte Helicio Cruz. Esta parte foi minha contribuição. -->
+    <div id="conteudo">
+
+        <!-- id=caixa-conteudo - Para ficar fácil visualizar o texto, colocamos um fundo branco no quadrado com o conteúdo principal -->
+        <div id="caixa-conteudo">
+            <!-- O conteúdo é composto por uma imagem para representar um lugar bonito de Santa Catarina e um texto apresentando a empresa -->
+            <img src="img/floripa.jpg" />
+            <div id="texto-conteudo">
+                <!-- Foram utilizadas tags de texto para destacar os elementos. h1 é um tag de título e p é uma tag de paragráfo -->
+                <!-- Motores de busca, como Google, utilizam essas tags para achar as páginas mais rápido. -->
+                <h1>Quem somos</h1>
+                <div>
+                    <p>Somos uma empresa que tem como objetivo divulgar os pontos turísticos do estado de Santa
+                        Catarina.
+                        Nossa missão é fazer com que as pessoas conheçam as belezas naturais e culturais do estado, e
+                        consequentemente, aumentar o número de turistas no estado.</p>
+                    <p>Para isso, contamos com uma equipe de profissionais altamente qualificados, que trabalham para
+                        oferecer a melhor experiência possível para os nossos clientes.</p>
+                    <p>Além disso, contamos com uma equipe de desenvolvedores que trabalham para oferecer a melhor
+                        experiência possível para os nossos clientes.</p>
+                </div>
+            </div>
+        </div>
+</body>
+
+</html>
