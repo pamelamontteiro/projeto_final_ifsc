@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Venha para Santa Catarina</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+</head>
+
+<body>
+    <div id="cabecalho">
+        <div id="menu">
+            <button class="dropdown-btn"><img class="botao-grande" src="img/menu.png" alt="Menu" /></button>
+            <ul class="dropdown-content">
+                <li><a href="index.html" target="_blank">Página principal</a></li>
+                <li><a href="destino.html">Destinos</a></li>
+                <li><a href="quem_somos.html">Quem somos</a></li>
+                <li><a href="contato.html">Contato</a></li>
+            </ul>
+        </div>
+        <div id="logo">Venha para Santa Cantarina</div>
+        <div id="midias">
+            <div id="cadastro" class="botao-midias"><a href="cadastro.html"><img class="botao-pequeno"
+                        src="img/person.png" /></a></div>
+            <div id="instagram" class="botao-midias"><a href="http://www.instagram.com" target="_blank"><img
+                        class="botao-pequeno" src="img/instagram.png" /></a></div>
+            <div id="twitter" class="botao-midias"><a href="http://www.twitter.com" target="_blank"><img
+                        class="botao-pequeno" src="img/twitter.png" /></a></div>
+        </div>
+    </div>
+    <div id="conteudo">
+        <div id="caixa-contato">
+            <div id="titulo-conteudo">
+                <a href="index.html">Voltar</a>
+                <h1>Cadastrar</h1>
+                <a href="index.html">X</a>
+            </div>
+            <div id="texto-conteudo">
+                <div>
+                    <form id="formulario-cadastro" action="cadastro.php" method="post">
+                        <label for="nome">Nome Completo:</label>
+                        <input type="text" id="nome" name="nome" required>
+
+                        <label for="email">E-mail:</label>
+                        <input type="email" id="email" name="email" required>
+
+                        <label for="nascimento">Data de Nascimento</label>
+                        <input type="date" id="nascimento" name="nascimento" style="padding-left: 46%;" required>
+
+                        <label for="telefone">Telefone</label>
+                        <input type="text" id="telefone" name="telefone" required>
+
+                        <label for="senha">Senha</label>
+                        <input type="password" id="senha" name="senha" required>
+
+                        <label for="confirmar_senha">Confirmar senha</label>
+                        <input type="password" id="confirmar_senha" name="confirmar_senha" required>
+
+                        <button type="submit">Inscreva-me</button>
+                    </form>
+                </div>
+            </div>
+            <div id="contato-rodape">
+                <p>Email: contato@venhaparasantacatarina.com</p>
+                <p>Telefone: (48) 99999-9999</p>
+                <div id="sociais">
+                    <a href="http://www.twitter.com" target="_blank"><img class="botao-midias"
+                            src="img/twitter_preto.png" /></a>
+                    <a href="http://www.instagram.com" target="_blank"><img class="botao-midias"
+                            src="img/instagram_preto.png" /></a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
