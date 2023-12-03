@@ -3,7 +3,6 @@ from pydantic import BaseModel
 class ComentarioBase(BaseModel):
     texto: str
     nota: int
-    title: str
 
 class ComentarioCreate(ComentarioBase):
     pass
@@ -24,7 +23,6 @@ class PontoTuristicoBase(BaseModel):
     bairro: str
     categoria: str
     nota: int
-    criador_id: int
 
 class PontoTuristicoCreate(PontoTuristicoBase):
     pass
