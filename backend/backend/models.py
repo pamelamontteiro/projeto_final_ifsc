@@ -1,7 +1,7 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from .database import Base
+from database import Base
 
 
 class Usuario(Base):
@@ -11,9 +11,9 @@ class Usuario(Base):
     nome = Column(String, unique=True, index=True)
     email = Column(String, unique=True, index=True)
     senha = Column(String)
-    tipo = Column(Integer, default=True)
+    tipo = Column(Integer)
 
-    pontos = relationship("ponto_turistico", back_populates="criador")
+    pontos = relationship("PontoTuristico", back_populates="criador")
     comentarios_usuario = relationship("Comentario", back_populates="usuario")
 
 

@@ -1,8 +1,8 @@
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 
-from . import crud, models, schemas
-from .database import SessionLocal, engine
+import crud, models, schemas
+from database import SessionLocal, engine
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -63,3 +63,15 @@ def create_comentario_for_ponto(
     user_id: int, ponto_id: int, comentario: schemas.ComentarioCreate, db: Session = Depends(get_db)
 ):
     return crud.create_comentario(db=db, comentario=comentario, user_id=user_id, ponto_id=ponto_id)
+
+@app.get("/comentarios/", response_model=list[schemas.Comentario])
+def read_comentarios(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    pontos = crud.get_comentarios(db, skip=skip, limit=limit)
+    return pontos
+
+@app.get("/comentarios/{comentario_id}", response_model=schemas.Comentario)
+def read_comentarios(comentario_id: int, db: Session = Depends(get_db)):
+    comentario = crud.get_comentario(db, comentario_id=comentario_id)
+    if comentario is None:
+        raise HTTPException(status_code=404, detail="Comentario nao encontrado.")
+    return comentario
