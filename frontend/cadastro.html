@@ -6,6 +6,32 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+    <script>
+        function cadastro_usuario() {
+            let nome = document.getElementById("nome").value;
+            let email = document.getElementById("email").value;
+            let senha = document.getElementById("senha").value;
+            let tipo = 2;
+
+            let _data = {
+                nome: nome,
+                email: email, 
+                senha: senha,
+                tipo: tipo
+            }
+
+            fetch('http://localhost:8000/usuarios/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(_data)
+            });
+        }
+    </script>
 </head>
 
 <body>
@@ -38,26 +64,21 @@
             </div>
             <div id="texto-conteudo">
                 <div>
-                    <form id="formulario-cadastro" action="cadastro.php" method="post">
+                    <form id="formulario-cadastro" onsubmit="return false">
                         <label for="nome">Nome Completo:</label>
                         <input type="text" id="nome" name="nome" required>
 
                         <label for="email">E-mail:</label>
                         <input type="email" id="email" name="email" required>
 
-                        <label for="nascimento">Data de Nascimento</label>
-                        <input type="date" id="nascimento" name="nascimento" style="padding-left: 46%;" required>
-
-                        <label for="telefone">Telefone</label>
-                        <input type="text" id="telefone" name="telefone" required>
-
                         <label for="senha">Senha</label>
                         <input type="password" id="senha" name="senha" required>
 
-                        <label for="confirmar_senha">Confirmar senha</label>
-                        <input type="password" id="confirmar_senha" name="confirmar_senha" required>
+                        <!-- <label for="confirmar_senha">Confirmar senha</label> -->
+                        <!-- <input type="password" id="confirmar_senha" name="confirmar_senha" required> -->
 
-                        <button type="submit">Inscreva-me</button>
+                        <!-- <input pys-onClick="cadastro_usuario" type="submit" id="btn-form" value="Inscreva-me"> -->
+                        <button onClick="cadastro_usuario()">Inscreva-me</button>
                     </form>
                 </div>
             </div>
@@ -74,6 +95,30 @@
             </div>
         </div>
     </div>
+    <py-script>
+    from pyodide.http import pyfetch
+    import asyncio
+    import json
+    
+    endpoint = "http://localhost:8000/usuarios/"
+
+    
+    async def cadastro_usuario(*args, **kwargs):
+        nome = Element('nome').value
+        email = Element('email').value
+        senha = Element('senha').value
+        data = {"nome": nome, "email": email, "tipo": 2, "senha": senha}
+        data_str = json.dumps(data, ensure_ascii=True)
+
+        response = await pyfetch(
+            endpoint,
+            method="POST",
+            headers={"Content-Type": "application/json"},
+            body=f"{data_str}",
+            mode="no-cors"
+        )
+        
+    </py-script>
 </body>
 
 </html>
