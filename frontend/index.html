@@ -6,9 +6,47 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <script>
+        function isLoggedIn () {
+            const token = localStorage.get('token')
+            console.log(token);
+            if (!token) {return false}
+            else {
+                alert("Funcionou")
+            }
+        }
 
-    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
-    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+        function login_usuario() {
+            let email = document.getElementById("email").value;
+            let senha = document.getElementById("senha").value;
+            let _data = {
+                email: email, 
+                senha: senha
+            }
+
+            fetch('http://localhost:8000/login/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(_data)
+            })
+            .then(response => {
+                if(response.ok ==true) {
+                    return response.json();
+                }
+                else {
+                    console.log("Erro no login");
+                }
+            })
+            .then(json => {
+                localStorage.setItem('token', json.id)
+                window.location.replace("index.html");
+            });
+        }
+
+        isLoggedIn();
+    </script>
 </head>
 
 <body>
@@ -16,7 +54,7 @@
         <div id="menu">
             <button class="dropdown-btn"><img class="botao-grande" src="img/menu.png" alt="Menu" /></button>
             <ul class="dropdown-content">
-                <li><a href="index.html" target="_blank">Página principal</a></li>
+                <li><a href="index.html">Página principal</a></li>
                 <li><a href="destino.html">Destinos</a></li>
                 <li><a href="quem_somos.html">Quem somos</a></li>
                 <li><a href="contato.html">Contato</a></li>
@@ -24,7 +62,7 @@
         </div>
         <div id="logo">Venha para Santa Cantarina</div>
         <div id="midias">
-            <div id="cadastro" class="botao-midias"><a href="cadastro.html"><img class="botao-pequeno"
+            <div id="cadastro" class="botao-midias"><a href="login.html"><img class="botao-pequeno"
                         src="img/person.png" /></a></div>
             <div id="instagram" class="botao-midias"><a href="http://www.instagram.com" target="_blank"><img
                         class="botao-pequeno" src="img/instagram.png" /></a></div>

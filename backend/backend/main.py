@@ -51,6 +51,12 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Usuário não encontrado.")
     return db_user
 
+@app.post("/login/", response_model=schemas.Usuario)
+def login_user(user: schemas.UsuarioLogin, db: Session=Depends(get_db)):
+    db_user = crud.get_user_login(db, email=user.email, password=user.senha)
+    if db_user is None:
+        raise HTTPException(status_code=401, detail="Email ou senha estão incorretos.")
+    return db_user
 
 @app.post("/usuarios/{user_id}/pontos_turisticos/", response_model=schemas.PontoTuristico)
 def create_item_for_user(

@@ -54,3 +54,7 @@ class Usuario(UsuarioBase):
 
     class Config:
         orm_mode = True
+        
+class UsuarioLogin(BaseModel):
+    email: str
+    senha: str

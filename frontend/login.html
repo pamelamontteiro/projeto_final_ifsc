@@ -8,27 +8,45 @@
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 
     <script>
-        function cadastro_usuario() {
-            let nome = document.getElementById("nome").value;
+        function isLoggedIn () {
+            const token = localStorage.get('token')
+            console.log(token);
+            if (!token) {return false}
+            else {
+                alert("Funcionou")
+            }
+        }
+
+        function login_usuario() {
             let email = document.getElementById("email").value;
             let senha = document.getElementById("senha").value;
-            let tipo = 2;
-
             let _data = {
-                nome: nome,
                 email: email, 
-                senha: senha,
-                tipo: tipo
+                senha: senha
             }
 
-            fetch('http://localhost:8000/usuarios/', {
+            fetch('http://localhost:8000/login/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(_data)
+            })
+            .then(response => {
+                if(response.ok ==true) {
+                    return response.json();
+                }
+                else {
+                    console.log("Erro no login");
+                }
+            })
+            .then(json => {
+                localStorage.setItem('token', json.id)
+                window.location.replace("index.html");
             });
         }
+
+        isLoggedIn();
     </script>
 </head>
 
@@ -63,21 +81,16 @@
             <div id="texto-conteudo">
                 <div>
                     <form id="formulario-cadastro" onsubmit="return false">
-                        <label for="nome">Nome Completo:</label>
-                        <input type="text" id="nome" name="nome" required>
-
-                        <label for="email">E-mail:</label>
+                        <label for="email">Email</label>
                         <input type="email" id="email" name="email" required>
-
                         <label for="senha">Senha</label>
                         <input type="password" id="senha" name="senha" required>
 
-                        <!-- <label for="confirmar_senha">Confirmar senha</label> -->
-                        <!-- <input type="password" id="confirmar_senha" name="confirmar_senha" required> -->
-
-                        <!-- <input pys-onClick="cadastro_usuario" type="submit" id="btn-form" value="Inscreva-me"> -->
-                        <button onClick="cadastro_usuario()">Inscreva-me</button>
+                        <button onClick="login_usuario()">Entrar</button>
                     </form>
+                </div>
+                <div>
+                    <a href="cadastro.html">Caso não tenha conta, se cadastre aqui!</a>
                 </div>
             </div>
             <div id="contato-rodape">
@@ -89,7 +102,6 @@
                     <a href="http://www.instagram.com" target="_blank"><img class="botao-midias"
                             src="img/instagram_preto.png" /></a>
                 </div>
-
             </div>
         </div>
     </div>
