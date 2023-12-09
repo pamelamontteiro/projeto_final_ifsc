@@ -51,12 +51,24 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Usuário não encontrado.")
     return db_user
 
+@app.post("/login/", response_model=schemas.Usuario)
+def login_user(user: schemas.UsuarioLogin, db: Session=Depends(get_db)):
+    db_user = crud.get_user_login(db, email=user.email, password=user.senha)
+    if db_user is None:
+        raise HTTPException(status_code=401, detail="Email ou senha estão incorretos.")
+    return db_user
 
 @app.post("/usuarios/{user_id}/pontos_turisticos/", response_model=schemas.PontoTuristico)
-def create_item_for_user(
+def create_ponto_turistico(
     user_id: int, ponto: schemas.PontoTuristicoCreate, db: Session = Depends(get_db)
 ):
     return crud.create_ponto_turistico(db=db, ponto=ponto, user_id=user_id)
+
+@app.post("/pontos_turisticos/{ponto_id}/foto/", response_model=schemas.FotosTurismo)
+def create_foto_ponto_turistico(
+    ponto_id: int, foto: schemas.FotosTurismoCreate, db: Session = Depends(get_db)
+):
+    return crud.create_foto_turismo(db=db, foto_turismo=foto, ponto_id=ponto_id)
 
 @app.get("/pontos_turisticos/", response_model=list[schemas.PontoTuristico])
 def read_pontos(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
@@ -69,6 +81,8 @@ def read_pontos(ponto_id: int, db: Session = Depends(get_db)):
     if ponto is None:
         raise HTTPException(status_code=404, detail="Ponto turístico não encontrado.")
     return ponto
+
+
 
 @app.post("/usuarios/{user_id}/pontos_turisticos/{ponto_id}/comentarios/", response_model=schemas.Comentario)
 def create_comentario_for_ponto(

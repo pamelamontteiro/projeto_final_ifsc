@@ -10,6 +10,7 @@ class Usuario(Base):
     id = Column(Integer, primary_key=True, index=True)
     nome = Column(String, index=True)
     email = Column(String, unique=True, index=True)
+    telefone = Column(String)
     senha = Column(String)
     tipo = Column(Integer)
 
@@ -32,7 +33,16 @@ class PontoTuristico(Base):
     
     criador = relationship("Usuario", back_populates="pontos")
     comentarios_ponto = relationship("Comentario", back_populates="ponto_turistico")
+    fotos_turismo = relationship("FotosTurismo", back_populates="pontos_turisticos")
 
+class FotosTurismo(Base):
+    __tablename__ = "fotos_turismo"
+
+    id = Column(Integer, primary_key=True, index=True)
+    foto_url = Column(String)
+
+    ponto_fk = Column(Integer, ForeignKey("ponto_turistico.id"))
+    pontos_turisticos = relationship("PontoTuristico", back_populates="fotos_turismo")
 
 class Comentario(Base):
     __tablename__ = "comentario"
