@@ -32,10 +32,7 @@
     </script>
     <script>
       function create_locais(data) {
-        console.log(data);
         data.forEach(ponto => {
-          console.log(ponto);
-
           const secao_div = document.getElementById("locais");
           const div = document.createElement("div");
           div.classList.add("u-container-layout");
@@ -63,11 +60,13 @@
           p.appendChild(document.createTextNode(ponto["descricao"]));
 
           const a = document.createElement("a");
+          a.id = 'ponto-' + ponto['id'];
           a.classList.add("u-btn");
           a.classList.add("u-button-style");
           a.classList.add("u-hover-palette-1-dark-1");
           a.classList.add("u-palette-1-base");
           a.classList.add("u-btn-1");
+          a.setAttribute("onClick", "redirecionar_novo_local(this.id)");
           a.appendChild(document.createTextNode("SAIBA MAIS"));
 
           secao_div.appendChild(div);
@@ -89,7 +88,142 @@
         .then(response => create_locais(response))
       }
 
-        get_locais();
+      function redirecionar_novo_local(id_element) {
+        const id = id_element.split('-')[1];
+        localStorage.setItem("local", id);
+        window.location.replace("Locais-turísticos-e-trilhas.html");
+      }
+
+      function main_local() {
+        let idx = localStorage.getItem('local')
+        if (idx === null) {
+          idx = 2;
+        }
+        fetch('http://localhost:8000/pontos_turisticos/' + idx, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+          },
+        })
+        .then(response => response.json())
+        .then(response => {
+          const imagem_principal = document.getElementById("imagem-principal");
+          imagem_principal.style.backgroundImage = "url('" + response['fotos_turismo'][0]['foto_url'] + "')";
+
+          const local_comentario = document.getElementById("local-comentario");
+          const h1 = document.createElement("h1");
+          h1.classList.add("u-text");
+          h1.classList.add("u-text-default");
+          h1.classList.add("u-text-1");
+          h1.appendChild(document.createTextNode(response['nome']));
+          local_comentario.prepend(h1);
+          
+          const p = document.createElement("p");
+          p.classList.add("u-text");
+          p.classList.add("u-text-2");
+          p.appendChild(document.createTextNode(response['descricao']));
+          h1.after(p);
+          
+          const div_nota = document.createElement("div");
+          div_nota.classList.add("u-container-style");
+          div_nota.classList.add("u-group");
+          div_nota.classList.add("u-shape-rectangle");
+          div_nota.classList.add("u-group-1");
+          p.after(div_nota)
+          
+          const div_estrela = document.createElement("div");
+          div_estrela.classList.add("u-container-layout");
+          div_estrela.classList.add("u-container-layout-3");
+          div_nota.appendChild(div_estrela)
+          
+          const nota = response['nota'];
+          for (let i = 0; i < nota; i++) {
+            const span_estrela = document.createElement("span");
+            span_estrela.classList.add("u-file-icon");
+            span_estrela.classList.add("u-icon");
+            span_estrela.classList.add("u-icon-" + (i+2));
+
+            const img_estrela = document.createElement("img");
+            img_estrela.setAttribute("src", "images/1828884.png");
+            span_estrela.appendChild(img_strela);
+            div_estrela.appendChild(span_estrela);
+          }
+
+          const h2 = document.createElement("h2");
+          h2.classList.add("u-text");
+          h2.classList.add("u-text-3");
+          h2.appendChild(document.createTextNode("Deixe a sua avaliação:"));
+          div_nota.after(h2);
+          
+          const titulo_comentario = document.getElementById("titulo-comentario");
+          const h2_comentario = document.createElement("h2");
+          h2_comentario.classList.add("u-align-left");
+          h2_comentario.classList.add("u-text");
+          h2_comentario.classList.add("u-text-default");
+          h2_comentario.classList.add("u-text-1");
+          h2_comentario.appendChild(document.createTextNode('O que os usuários dizem sobre "' + response['nome'] + '":'));
+          titulo_comentario.prepend(h2_comentario);  
+        })
+      }
+
+      function enviar_comentario() {
+        const texto = document.getElementById("message-9209").value;
+        const nota = document.getElementById("rank").value;
+
+        let _data = {
+          texto: texto,
+          nota: nota
+        };
+        const user_id = localStorage.getItem("token");
+        const ponto_id = localStorage.getItem("local");
+        
+          fetch('http://localhost:8000/usuarios/' + user_id + '/pontos_turisticos/' + ponto_id + '/comentarios/', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(_data)
+          })
+          .then(response => response.json())
+          .then(response => {
+            window.location.replace("Locais-turísticos-e-trilhas.html");
+          });
+      }
+
+      function get_comentarios() {
+        fetch('http://localhost:8000/comentarios/', {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+          },
+        })
+        .then(response => response.json())
+        .then(response => {
+          const comentarios = document.getElementById("comentarios");
+          response.forEach(comentario => {
+            const local = localStorage.getItem("local");
+            if (comentario['ponto_turistico_id'] == local) {
+              const div_comentario = document.createElement("div");
+              div_comentario.classList.add("u-container-layout");
+              div_comentario.classList.add("u-container-layout-1");
+              comentarios.appendChild(div_comentario);
+
+              const div_comentario_texto = document.createElement("div");
+              div_comentario_texto.appendChild(document.createTextNode(comentario['texto']));
+              div_comentario.appendChild(div_comentario_texto);
+            }
+          })
+        })  
+      }
+
+      //<div class=" ">
+      //      <div id="comentario-text">Testando comentário</div>
+      //      <div style="font-style: italic;">"Italo"</div>
+      //    </div>
+
+      get_locais();
+      main_local();
+      get_comentarios();
     </script>
     <meta name="theme-color" content="#404065">
     <meta property="og:title" content="Locais turísticos e trilhas">
@@ -149,46 +283,6 @@
         <h2 class="u-text u-text-default u-text-1">Locais turísticos e trilhas</h2>
         <div class="u-expanded-width u-list u-list-1">
           <div id="locais" class="u-repeater u-repeater-1">
-            <div class="u-container-style u-list-item u-repeater-item">
-              <div class="u-container-layout u-similar-container u-container-layout-1">
-                <img alt="" class="u-expanded-width u-image u-image-default u-image-1" data-image-width="1000" data-image-height="751" src="images/Praia-de-Naufragados-Florianpolis-por-trilhasfloripa.jpg">
-                <h3 class="u-text u-text-default u-text-2">Trilha de Naufragados</h3>
-                <p class="u-text u-text-3">Localizada em Florianópolis, é uma trilha de três quilômetros que separa a praia da estrada, onde há cachoeiras e ruínas de um engenho de farinha.</p>
-                <a href="Locais-turísticos-e-trilhas.html#sec-b2b5" class="u-btn u-button-style u-hover-palette-1-dark-1 u-palette-1-base u-btn-1">SAIBA MAIS</a>
-              </div>
-            </div>
-            <div class="u-container-style u-list-item u-repeater-item">
-              <div class="u-container-layout u-similar-container u-container-layout-1">
-                <img alt="" class="u-expanded-width u-image u-image-default u-image-1" data-image-width="1000" data-image-height="751" src="images/Praia-de-Naufragados-Florianpolis-por-trilhasfloripa.jpg">
-                <h3 class="u-text u-text-default u-text-2">Trilha de Naufragados</h3>
-                <p class="u-text u-text-3">Localizada em Florianópolis, é uma trilha de três quilômetros que separa a praia da estrada, onde há cachoeiras e ruínas de um engenho de farinha.</p>
-                <a href="Locais-turísticos-e-trilhas.html#sec-b2b5" class="u-btn u-button-style u-hover-palette-1-dark-1 u-palette-1-base u-btn-1">SAIBA MAIS</a>
-              </div>
-            </div>
-            <div class="u-container-style u-list-item u-repeater-item">
-              <div class="u-container-layout u-similar-container u-container-layout-1">
-                <img alt="" class="u-expanded-width u-image u-image-default u-image-1" data-image-width="1000" data-image-height="751" src="images/Praia-de-Naufragados-Florianpolis-por-trilhasfloripa.jpg">
-                <h3 class="u-text u-text-default u-text-2">Trilha de Naufragados</h3>
-                <p class="u-text u-text-3">Localizada em Florianópolis, é uma trilha de três quilômetros que separa a praia da estrada, onde há cachoeiras e ruínas de um engenho de farinha.</p>
-                <a href="Locais-turísticos-e-trilhas.html#sec-b2b5" class="u-btn u-button-style u-hover-palette-1-dark-1 u-palette-1-base u-btn-1">SAIBA MAIS</a>
-              </div>
-            </div>
-            <div class="u-container-style u-list-item u-repeater-item">
-              <div class="u-container-layout u-similar-container u-container-layout-2">
-                <img alt="" class="u-expanded-width u-image u-image-default u-image-2" data-image-width="1024" data-image-height="585" src="images/pedra-furada-parque-nacional-de-sao-joaquim-urubici-sc-maior.jpg">
-                <h3 class="u-text u-text-default u-text-4">Trilha da Pedra Furada</h3>
-                <p class="u-text u-text-5"> Localizada no Parque Nacional de São Joaquim, no interior do município de Orleans. A trilha somente é possível com guias autorizados pelo Parque.</p>
-                <a href="" class="u-btn u-button-style u-hover-palette-1-dark-1 u-palette-1-base u-btn-2">SAIBA MAIS</a>
-              </div>
-            </div>
-            <div class="u-container-style u-list-item u-repeater-item">
-              <div class="u-container-layout u-similar-container u-container-layout-3">
-                <img alt="" class="u-expanded-width u-image u-image-default u-image-3" data-image-width="275" data-image-height="183" src="images/download.jpg">
-                <h3 class="u-text u-text-default u-text-6">Cachoeira das Andorinhas</h3>
-                <p class="u-text u-text-7"> Localizada a 35 km do centro do município de Apiúna. A cachoeira das Andorinhas possui uma belíssima piscina natural para banho.</p>
-                <a href="" class="u-btn u-button-style u-hover-palette-1-dark-1 u-palette-1-base u-btn-3">SAIBA MAIS</a>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -198,20 +292,16 @@
         <div class="data-layout-selected u-clearfix u-expanded-width u-gutter-0 u-layout-wrap u-layout-wrap-1">
           <div class="u-gutter-0 u-layout">
             <div class="u-layout-col">
-              <div class="u-align-center u-container-style u-image u-layout-cell u-size-30 u-image-1" data-image-width="1200" data-image-height="1200">
+              <div id="imagem-principal" class="u-align-center u-container-style u-image u-layout-cell u-size-30 u-image-1" data-image-width="1200" data-image-height="1200">
                 <div class="u-container-layout u-valign-middle u-container-layout-1" src=""></div>
               </div>
               <div class="u-align-center u-container-style u-layout-cell u-opacity u-opacity-70 u-shape-rectangle u-size-30 u-layout-cell-2">
+                
+                
+                
                 <div id="local-comentario" class="u-container-layout u-container-layout-2">
-                  <h1 class="u-text u-text-default u-text-1"> Trilha de Naufragados</h1>
-                  <p class="u-text u-text-2"> Localizada em Florianópolis, é uma trilha de três quilômetros que separa a praia da estrada, onde há cachoeiras e ruínas de um engenho de farinha.</p>
-                  <div class="u-container-style u-group u-shape-rectangle u-group-1">
-                    <div class="u-container-layout u-container-layout-3"><span class="u-file-icon u-icon u-icon-2"><img src="images/1828884.png" alt=""></span><span class="u-file-icon u-icon u-icon-3"><img src="images/1828884.png" alt=""></span><span class="u-file-icon u-icon u-icon-4"><img src="images/1828884.png" alt=""></span><span class="u-file-icon u-icon u-icon-5"><img src="images/1828884.png" alt=""></span><span class="u-file-icon u-icon u-icon-6"><img src="images/1828884.png" alt=""></span>
-                    </div>
-                  </div>
-                  <h2 class="u-text u-text-3">Deixe a sua avaliação:</h2>
                   <div class="u-carousel u-carousel-duration-250 u-carousel-fade u-form u-form-1" data-interval="0" data-u-ride="false" id="carousel-af78">
-                    <form action="https://forms.nicepagesrv.com/v2/form/process" class="u-clearfix u-form-spacing-16 u-form-vertical u-inner-form" source="email" name="form" style="padding: 41px;">
+                    <form class="u-clearfix u-form-spacing-16 u-form-vertical u-inner-form" source="email" name="form" style="padding: 41px;">
                       <div class="u-carousel-inner" role="listbox">
                         <div class="u-carousel-item u-form-step u-slide u-active">
                           <div class="u-form-group u-form-message u-label-top">
@@ -321,7 +411,7 @@
 	l10.815,5.686c0.526,0.277,1.087,0.417,1.666,0.417c1.057,0,2.059-0.47,2.748-1.288c0.687-0.813,0.964-1.846,0.781-2.904
 	l-2.065-12.042c-0.088-0.513,0.083-1.036,0.456-1.4L48.856,22.73z"></path></svg>
                               </span>
-                              <input type="hidden" id="form-rating-fd8f" name="rank" value="" required="">
+                              <input id="rank" type="hidden" id="form-rating-fd8f" name="rank" value="" required="">
                             </div>
                           </div>
                         </div>
@@ -329,14 +419,8 @@
                       </div>
                       <div class="u-align-left u-form-group u-form-submit u-label-top">
                         <input type="submit" value="submit" class="u-form-control-hidden">
-                        <a href="#" class="u-border-none u-btn u-btn-step u-btn-step-prev u-button-style u-hover-palette-1-dark-1 u-hidden u-btn-1">Voltar</a>
-                        <a href="#" class="u-border-none u-btn u-btn-step u-btn-step-next u-button-style u-hover-palette-1-dark-1 u-btn-1">Próximo</a>
-                        <a href="#" class="u-border-none u-btn u-btn-submit u-button-style u-hover-palette-1-dark-1 u-hidden u-btn-1">Enviar</a>
+                        <a href="#" class="u-border-none u-btn u-btn-step u-btn-step-next u-button-style u-hover-palette-1-dark-1 u-btn-1" onClick="enviar_comentario()">Enviar</a>
                       </div>
-                      <div class="u-form-send-message u-form-send-success">O seu comentário foi enviado!</div>
-                      <div class="u-form-send-error u-form-send-message">Não foi possível enviar a sua mensagem. Por favor, corrija os erros e tente novamente.</div>
-                      <input type="hidden" value="" name="recaptchaResponse">
-                      <input type="hidden" name="formServices" value="6488a955-0a11-d215-87d8-4316db468e42">
                     </form>
                   </div>
                 </div>
@@ -347,11 +431,8 @@
       </div>
     </section>
     <section class="u-clearfix u-gradient u-section-3" id="sec-5f1a">
-      <div class="u-clearfix u-sheet u-sheet-1">
-        <h2 class="u-align-left u-text u-text-default u-text-1">O que os usuários dizem sobre "Trilha de Naufragados":<br>
-        </h2>
-        <div class="u-align-center u-container-style u-group u-opacity u-opacity-70 u-shape-rectangle u-group-1" data-animation-name="" data-animation-duration="0" data-animation-delay="0" data-animation-direction="">
-          <div class="u-container-layout u-container-layout-1"></div>
+      <div id="titulo-comentario" class="u-clearfix u-sheet u-sheet-1">
+        <div id="comentarios" class="u-align-center u-container-style u-group u-opacity u-opacity-70 u-shape-rectangle u-group-1" data-animation-name="" data-animation-duration="0" data-animation-delay="0" data-animation-direction="">
         </div>
       </div>
     </section>
