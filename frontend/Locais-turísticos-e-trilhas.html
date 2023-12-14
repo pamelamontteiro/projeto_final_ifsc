@@ -37,21 +37,26 @@
   <script>
     function verificar_moderador() {
       const usuario_id = localStorage.getItem("token");
-      fetch('http://localhost:8000/usuarios/' + usuario_id + '/', {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-        },
-      }).then(response => response.json())
-        .then(response => {
-          const li_cadastrar_local = document.getElementById("somente_moderador");
-          if (response['tipo'] != 0) {
-            li_cadastrar_local.remove();
-          }
-        })
-    }
+      if (usuario_id === null) {
+        const li_cadastrar_local = document.getElementById("somente_moderador");
+        li_cadastrar_local.remove();
+      }
+      else {
+        fetch('http://localhost:8000/usuarios/' + usuario_id + '/', {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+          },
+        }).then(response => response.json())
+          .then(response => {
+            const li_cadastrar_local = document.getElementById("somente_moderador");
+            if (response['tipo'] != 0) {
+              li_cadastrar_local.remove();
+            }
+          });
+      }
 
-    verificar_moderador();
+    }
 
     function create_locais(data) {
       data.forEach(ponto => {
@@ -197,6 +202,10 @@
     }
 
     function enviar_comentario() {
+      const user_id = localStorage.getItem("token");
+      if (user_id === null) {
+        window.location.replace("Entre.html");
+      }
       const texto = document.getElementById("message-9209").value;
       const nota = document.getElementById("rank").value;
       const foto_caminho = document.querySelector('input[type=file]').files[0];
@@ -215,7 +224,7 @@
         texto: texto,
         nota: nota
       };
-      const user_id = localStorage.getItem("token");
+
       const ponto_id = localStorage.getItem("local");
 
       fetch('http://localhost:8000/usuarios/' + user_id + '/pontos_turisticos/' + ponto_id + '/comentarios/', {
@@ -689,5 +698,8 @@
 
 
 </body>
+<script>
+  verificar_moderador();
+</script>
 
 </html>
