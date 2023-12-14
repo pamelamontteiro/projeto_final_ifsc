@@ -101,3 +101,9 @@ def read_comentarios(comentario_id: int, db: Session = Depends(get_db)):
     if comentario is None:
         raise HTTPException(status_code=404, detail="Comentario nao encontrado.")
     return comentario
+
+@app.post("/comentario/{comentario_id}/foto/", response_model=schemas.FotosComentario)
+def create_foto_comentario(
+    comentario_id: int, foto: schemas.FotosComentarioCreate, db: Session = Depends(get_db)
+):
+    return crud.create_foto_comentario(db=db, foto_comentario=foto, comentario_id=comentario_id)

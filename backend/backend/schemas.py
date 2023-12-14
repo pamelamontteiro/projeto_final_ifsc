@@ -1,6 +1,19 @@
 from pydantic import BaseModel
 from datetime import date, datetime, time, timedelta
 
+class FotosComentarioBase(BaseModel):
+    foto_base: str
+
+class FotosComentarioCreate(FotosComentarioBase):
+    pass
+
+class FotosComentario(FotosComentarioBase):
+    id: int
+    comentario_fk: int
+
+    class Config:
+        orm_mode = True
+
 class ComentarioBase(BaseModel):
     texto: str
     nota: int
@@ -8,12 +21,11 @@ class ComentarioBase(BaseModel):
 class ComentarioCreate(ComentarioBase):
     pass
 
-
 class Comentario(ComentarioBase):
     id: int
     usuario_id: int
     ponto_turistico_id: int
-
+    fotos_comentario: list[FotosComentario] = []
 
     class Config:
         orm_mode = True
@@ -51,8 +63,6 @@ class PontoTuristico(PontoTuristicoBase):
 
     class Config:
         orm_mode = True
-
-
 
 class UsuarioBase(BaseModel):
     nome: str

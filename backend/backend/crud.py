@@ -65,3 +65,16 @@ def create_comentario(db: Session, comentario: schemas.Comentario, user_id: int,
     db.commit()
     db.refresh(db_item)
     return db_item
+
+def get_foto_comentario(db: Session, foto_comentario_id: int):
+    return db.query(models.FotosComentario).filter(models.FotosComentario.id == foto_comentario_id).first()
+
+def get_fotos_comentario(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(models.FotosComentario).offset(skip).limit(limit).all()
+
+def create_foto_comentario(db: Session, foto_comentario: schemas.FotosComentario, comentario_id: int):
+    db_item = models.FotosComentario(**foto_comentario.dict(), comentario_fk=comentario_id)
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item

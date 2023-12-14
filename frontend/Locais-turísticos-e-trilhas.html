@@ -31,8 +31,27 @@
       }
     </script>
     <script>
+      function verificar_moderador() {
+        const usuario_id = localStorage.getItem("token");
+            fetch('http://localhost:8000/usuarios/' + usuario_id + '/', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                },
+            }).then(response =>  response.json())
+            .then(response => {
+                const li_cadastrar_local = document.getElementById("somente_moderador");
+                if (response['tipo'] != 0) {
+                  li_cadastrar_local.remove();
+                }
+            })      
+      }
+
+      verificar_moderador();
+
       function create_locais(data) {
         data.forEach(ponto => {
+          console.log(ponto);
           const secao_div = document.getElementById("locais");
           const div = document.createElement("div");
           div.classList.add("u-container-layout");
@@ -107,6 +126,7 @@
         })
         .then(response => response.json())
         .then(response => {
+          console.log(response);
           const imagem_principal = document.getElementById("imagem-principal");
           imagem_principal.style.backgroundImage = "url('" + response['fotos_turismo'][0]['foto_url'] + "')";
 
@@ -136,7 +156,13 @@
           div_estrela.classList.add("u-container-layout-3");
           div_nota.appendChild(div_estrela)
           
-          const nota = response['nota'];
+          comentarios = response['comentarios_ponto'];
+          let nota = 0;
+          comentarios.forEach(comentario => {
+            nota = nota + comentario['nota'];
+          })
+          nota = nota / comentarios.length;
+          nota = Math.ceil(nota);
           for (let i = 0; i < nota; i++) {
             const span_estrela = document.createElement("span");
             span_estrela.classList.add("u-file-icon");
@@ -145,7 +171,7 @@
 
             const img_estrela = document.createElement("img");
             img_estrela.setAttribute("src", "images/1828884.png");
-            span_estrela.appendChild(img_strela);
+            span_estrela.appendChild(img_estrela);
             div_estrela.appendChild(span_estrela);
           }
 
@@ -169,6 +195,17 @@
       function enviar_comentario() {
         const texto = document.getElementById("message-9209").value;
         const nota = document.getElementById("rank").value;
+        const foto_caminho = document.querySelector('input[type=file]').files[0];
+        const reader = new FileReader();
+        let foto_64 = "";
+
+        reader.addEventListener("load", function () {
+            localStorage.setItem("imagem", reader.result);
+        }, false);
+
+        if (foto_caminho) {
+          reader.readAsDataURL(foto_caminho);
+        } 
 
         let _data = {
           texto: texto,
@@ -177,7 +214,7 @@
         const user_id = localStorage.getItem("token");
         const ponto_id = localStorage.getItem("local");
         
-          fetch('http://localhost:8000/usuarios/' + user_id + '/pontos_turisticos/' + ponto_id + '/comentarios/', {
+        fetch('http://localhost:8000/usuarios/' + user_id + '/pontos_turisticos/' + ponto_id + '/comentarios/', {
               method: 'POST',
               headers: {
                   'Content-Type': 'application/json'
@@ -186,8 +223,22 @@
           })
           .then(response => response.json())
           .then(response => {
-            window.location.replace("Locais-turísticos-e-trilhas.html");
-          });
+            const comentario_id = response["id"];
+            let _foto = {
+              foto_base: localStorage.getItem("imagem")
+            };
+            fetch('http://localhost:8000/comentario/' + comentario_id + '/foto/', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(_foto)
+            }).then(response => response.json())
+            .then(response => {
+              window.location.replace("Locais-turísticos-e-trilhas.html");
+            })
+            
+        });
       }
 
       function get_comentarios() {
@@ -204,22 +255,38 @@
             const local = localStorage.getItem("local");
             if (comentario['ponto_turistico_id'] == local) {
               const div_comentario = document.createElement("div");
+                  
               div_comentario.classList.add("u-container-layout");
               div_comentario.classList.add("u-container-layout-1");
               comentarios.appendChild(div_comentario);
 
-              const div_comentario_texto = document.createElement("div");
-              div_comentario_texto.appendChild(document.createTextNode(comentario['texto']));
-              div_comentario.appendChild(div_comentario_texto);
+              fetch('http://localhost:8000/usuarios/' + comentario['usuario_id'], {
+                method: 'GET',
+                headers: {
+                  'Accept': 'application/json',
+                },
+              }).then(usuario_response => usuario_response.json())
+              .then(usuario_response => {
+                const div_comentario_autor = document.createElement("div");
+                div_comentario_autor.setAttribute("style", "font-style: italic; font-weight: bold");
+                div_comentario_autor.appendChild(document.createTextNode(usuario_response['nome']));
+                div_comentario.appendChild(div_comentario_autor);
+
+                if (comentario['fotos_comentario'].length > 0) {
+                  const img_foto_comentario = document.createElement("img");
+                  img_foto_comentario.setAttribute("src", comentario['fotos_comentario'][0]['foto_base']);
+                  img_foto_comentario.setAttribute("style", "max-width: 400px; width: 100%");
+                  div_comentario.appendChild(img_foto_comentario);
+                }
+              
+                const div_comentario_texto = document.createElement("div");
+                div_comentario_texto.appendChild(document.createTextNode(comentario['texto']));
+                div_comentario.appendChild(div_comentario_texto);
+              })
             }
           })
         })  
       }
-
-      //<div class=" ">
-      //      <div id="comentario-text">Testando comentário</div>
-      //      <div style="font-style: italic;">"Italo"</div>
-      //    </div>
 
       get_locais();
       main_local();
@@ -239,12 +306,14 @@
             </a>
           </div>
           <div class="u-custom-menu u-nav-container">
-            <ul class="u-nav u-spacing-2 u-unstyled u-nav-1"><li class="u-nav-item"><a class="u-active-palette-1-base u-border-active-palette-1-base u-border-hover-palette-1-light-1 u-border-no-left u-border-no-right u-border-no-top u-button-style u-hover-palette-1-light-1 u-nav-link u-text-active-white u-text-grey-90 u-text-hover-white" href="Página-Inicial.html" style="padding: 10px 20px;">Página Inicial</a>
-</li><li class="u-nav-item"><a class="u-active-palette-1-base u-border-active-palette-1-base u-border-hover-palette-1-light-1 u-border-no-left u-border-no-right u-border-no-top u-button-style u-hover-palette-1-light-1 u-nav-link u-text-active-white u-text-grey-90 u-text-hover-white" href="Sobre.html" style="padding: 10px 20px;">Sobre</a>
-</li><li class="u-nav-item"><a class="u-active-palette-1-base u-border-active-palette-1-base u-border-hover-palette-1-light-1 u-border-no-left u-border-no-right u-border-no-top u-button-style u-hover-palette-1-light-1 u-nav-link u-text-active-white u-text-grey-90 u-text-hover-white" href="Locais-turísticos-e-trilhas.html" style="padding: 10px 20px;">Locais turísticos e trilhas</a>
-</li><li class="u-nav-item"><a class="u-active-palette-1-base u-border-active-palette-1-base u-border-hover-palette-1-light-1 u-border-no-left u-border-no-right u-border-no-top u-button-style u-hover-palette-1-light-1 u-nav-link u-text-active-white u-text-grey-90 u-text-hover-white" href="#" style="padding: 10px 20px;">Iniciar sessão</a><div class="u-nav-popup"><ul class="u-h-spacing-20 u-nav u-unstyled u-v-spacing-10"><li class="u-nav-item"><a class="u-button-style u-nav-link u-white" href="Cadastrar.html">Cadastre-se</a>
-</li><li class="u-nav-item"><a class="u-button-style u-nav-link u-white" href="Entre.html">Entre</a>
-</li><li class="u-nav-item"><a onClick="deslogar()" class="u-button-style u-nav-link u-white">Encerrar sessão</a>
+            <ul class="u-nav u-spacing-2 u-unstyled u-nav-1">
+              <li class="u-nav-item"><a class="u-active-palette-1-base u-border-active-palette-1-base u-border-hover-palette-1-light-1 u-border-no-left u-border-no-right u-border-no-top u-button-style u-hover-palette-1-light-1 u-nav-link u-text-active-white u-text-grey-90 u-text-hover-white" href="Página-Inicial.html" style="padding: 10px 20px;">Página Inicial</a></li>
+              <li class="u-nav-item"><a class="u-active-palette-1-base u-border-active-palette-1-base u-border-hover-palette-1-light-1 u-border-no-left u-border-no-right u-border-no-top u-button-style u-hover-palette-1-light-1 u-nav-link u-text-active-white u-text-grey-90 u-text-hover-white" href="Sobre.html" style="padding: 10px 20px;">Sobre</a></li>
+              <li class="u-nav-item"><a class="u-active-palette-1-base u-border-active-palette-1-base u-border-hover-palette-1-light-1 u-border-no-left u-border-no-right u-border-no-top u-button-style u-hover-palette-1-light-1 u-nav-link u-text-active-white u-text-grey-90 u-text-hover-white" href="Locais-turísticos-e-trilhas.html" style="padding: 10px 20px;">Locais turísticos e trilhas</a></li>
+              <li id="somente_moderador" class="u-nav-item"><a class="u-active-palette-1-base u-border-active-palette-1-base u-border-hover-palette-1-light-1 u-border-no-left u-border-no-right u-border-no-top u-button-style u-hover-palette-1-light-1 u-nav-link u-text-active-white u-text-grey-90 u-text-hover-white" href="Cadastrar_local.html" style="padding: 10px 20px;">Cadastre locais</a></li>
+              <li class="u-nav-item"><a class="u-active-palette-1-base u-border-active-palette-1-base u-border-hover-palette-1-light-1 u-border-no-left u-border-no-right u-border-no-top u-button-style u-hover-palette-1-light-1 u-nav-link u-text-active-white u-text-grey-90 u-text-hover-white" href="#" style="padding: 10px 20px;">Iniciar sessão</a><div class="u-nav-popup"><ul class="u-h-spacing-20 u-nav u-unstyled u-v-spacing-10"><li class="u-nav-item"><a class="u-button-style u-nav-link u-white" href="Cadastrar.html">Cadastre-se</a></li>
+              <li class="u-nav-item"><a class="u-button-style u-nav-link u-white" href="Entre.html">Entre</a></li>
+              <li class="u-nav-item"><a onClick="deslogar()" class="u-button-style u-nav-link u-white">Encerrar sessão</a>
 </li></ul>
 </div>
 </li></ul>
@@ -267,15 +336,6 @@
             <div class="u-black u-menu-overlay u-opacity u-opacity-70"></div>
           </div>
         </nav>
-        <form action="#" method="get" class="u-border-1 u-border-grey-30 u-search u-search-left u-white u-search-1">
-          <button class="u-search-button" type="submit">
-            <span class="u-search-icon u-spacing-10">
-              <svg class="u-svg-link" preserveAspectRatio="xMidYMin slice" viewBox="0 0 56.966 56.966"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#svg-b819"></use></svg>
-              <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="svg-b819" x="0px" y="0px" viewBox="0 0 56.966 56.966" style="enable-background:new 0 0 56.966 56.966;" xml:space="preserve" class="u-svg-content"><path d="M55.146,51.887L41.588,37.786c3.486-4.144,5.396-9.358,5.396-14.786c0-12.682-10.318-23-23-23s-23,10.318-23,23  s10.318,23,23,23c4.761,0,9.298-1.436,13.177-4.162l13.661,14.208c0.571,0.593,1.339,0.92,2.162,0.92  c0.779,0,1.518-0.297,2.079-0.837C56.255,54.982,56.293,53.08,55.146,51.887z M23.984,6c9.374,0,17,7.626,17,17s-7.626,17-17,17  s-17-7.626-17-17S14.61,6,23.984,6z"></path></svg>
-            </span>
-          </button>
-          <input class="u-search-input" type="search" name="search" value="" placeholder="Search">
-        </form>
         <h1 class="u-text u-text-default u-text-1">Venha Para Santa Catarina</h1>
       </div></header>
     <section class="u-clearfix u-gradient u-section-1" id="sec-b5f6">
@@ -296,9 +356,6 @@
                 <div class="u-container-layout u-valign-middle u-container-layout-1" src=""></div>
               </div>
               <div class="u-align-center u-container-style u-layout-cell u-opacity u-opacity-70 u-shape-rectangle u-size-30 u-layout-cell-2">
-                
-                
-                
                 <div id="local-comentario" class="u-container-layout u-container-layout-2">
                   <div class="u-carousel u-carousel-duration-250 u-carousel-fade u-form u-form-1" data-interval="0" data-u-ride="false" id="carousel-af78">
                     <form class="u-clearfix u-form-spacing-16 u-form-vertical u-inner-form" source="email" name="form" style="padding: 41px;">
@@ -414,9 +471,11 @@
                               <input id="rank" type="hidden" id="form-rating-fd8f" name="rank" value="" required="">
                             </div>
                           </div>
+                          
                         </div>
                         <div class="u-carousel-item u-form-step u-slide"></div>
                       </div>
+                      <input type="file" id="imageFile" accept=".jpg, .jpeg, .png" />
                       <div class="u-align-left u-form-group u-form-submit u-label-top">
                         <input type="submit" value="submit" class="u-form-control-hidden">
                         <a href="#" class="u-border-none u-btn u-btn-step u-btn-step-next u-button-style u-hover-palette-1-dark-1 u-btn-1" onClick="enviar_comentario()">Enviar</a>
@@ -432,7 +491,7 @@
     </section>
     <section class="u-clearfix u-gradient u-section-3" id="sec-5f1a">
       <div id="titulo-comentario" class="u-clearfix u-sheet u-sheet-1">
-        <div id="comentarios" class="u-align-center u-container-style u-group u-opacity u-opacity-70 u-shape-rectangle u-group-1" data-animation-name="" data-animation-duration="0" data-animation-delay="0" data-animation-direction="">
+        <div id="comentarios" class="u-container-style u-opacity u-opacity-70 u-shape-rectangle u-group-1" data-animation-name="" data-animation-duration="0" data-animation-delay="0" data-animation-direction="">
         </div>
       </div>
     </section>

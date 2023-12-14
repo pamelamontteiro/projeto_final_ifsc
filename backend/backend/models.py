@@ -18,7 +18,6 @@ class Usuario(Base):
     comentarios_usuario = relationship("Comentario", back_populates="usuario")
 
 
-
 class PontoTuristico(Base):
     __tablename__ = "ponto_turistico"
 
@@ -56,3 +55,13 @@ class Comentario(Base):
 
     usuario = relationship("Usuario", back_populates="comentarios_usuario")
     ponto_turistico = relationship("PontoTuristico", back_populates="comentarios_ponto")
+    fotos_comentario = relationship("FotosComentario", back_populates="comentarios")
+
+class FotosComentario(Base):
+    __tablename__ = "fotos_comentario"
+
+    id = Column(Integer, primary_key=True, index=True)
+    foto_base = Column(String)
+
+    comentario_fk = Column(Integer, ForeignKey("comentario.id"))
+    comentarios = relationship("Comentario", back_populates="fotos_comentario")
